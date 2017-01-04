@@ -17,7 +17,7 @@ namespace SplitterNotify
             ServiceBase[] ServicesToRun;
             ServicesToRun = new ServiceBase[]
             {
-                new Service1()
+                new SplitterNotifyService()
             };
             ServiceBase.Run(ServicesToRun);
         }

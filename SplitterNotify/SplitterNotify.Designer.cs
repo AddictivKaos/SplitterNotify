@@ -1,6 +1,6 @@
 ﻿namespace SplitterNotify
 {
-    partial class Service1
+    partial class SplitterNotifyService
     {
         /// <summary> 
         /// Required designer variable.

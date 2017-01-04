@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EF207D48-7AC0-4659-B622-B2242BAF889B}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
-    <RootNamespace>SplitterNotify</RootNamespace>
-    <AssemblyName>SplitterNotify</AssemblyName>
+    <ProjectGuid>{AC5306C1-885D-48DE-88E3-B373BEEC21EE}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>SplitterNotifyConsole</RootNamespace>
+    <AssemblyName>SplitterNotifyConsole</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -33,32 +33,20 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SplitterNotify.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="SplitterNotify.Designer.cs">
-      <DependentUpon>SplitterNotify.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StringCipher.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="p.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SplitterNotifyCommon\SplitterNotifyCommon.csproj">
@@ -66,5 +54,11 @@
       <Name>SplitterNotifyCommon</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="p.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(ProjectDir)p.txt" "$(TargetDir)"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
