@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -11,9 +13,11 @@ namespace SplitterNotifyCommon
     {
         const string AddressMatchGroup = "address";
         Regex addressPattern;
-        public HtmlAddressParser()
+        public HtmlAddressParser(NameValueCollection settings)
         {
-            addressPattern = new Regex("<a href[^>]+title=\"View this property on realestate\\.com\\.au\"[^<]*>(?<" + AddressMatchGroup + ">[^< \t\r\n][^<]+)",
+            string patternPrefix = settings["addressPatternPrefix"];
+            string patternSuffix = settings["addressPatternSuffix"];
+            addressPattern = new Regex(patternPrefix + AddressMatchGroup + patternSuffix,
                 RegexOptions.Compiled | RegexOptions.IgnoreCase);
         }
 

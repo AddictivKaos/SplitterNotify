@@ -21,6 +21,7 @@ namespace SplitterNotifyCommon
         string fromFilter;
         string subjectFilter;
         BackgroundWorker worker = new BackgroundWorker();
+        HtmlAddressParser htmlAddressParser;
 
         public SplitterNotifier()
         {
@@ -34,7 +35,7 @@ namespace SplitterNotifyCommon
             subjectFilter = ConfigurationManager.AppSettings["subjectFilter"];
             username = ConfigurationManager.AppSettings["username"];
             serverHostname = ConfigurationManager.AppSettings["serverHostname"];
-
+            htmlAddressParser = new HtmlAddressParser(ConfigurationManager.AppSettings);
         }
 
         public void Start()
@@ -99,7 +100,9 @@ namespace SplitterNotifyCommon
             if (message.Body.HasHtml)
             {
                 Debug.WriteLine(message.Body.Html);
+                var addressesInEmail = htmlAddressParser.GetAddressMatches(message.Body.Html);
 
+                // TODO find addresses in DB
             }
             //throw new NotImplementedException();
         }
