@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="HtmlAddressParserTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SplitterDataTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

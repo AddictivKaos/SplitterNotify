@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ImapX;
 using System.ComponentModel;
+using System.Collections.Specialized;
 
 namespace SplitterNotifyCommon
 {
@@ -18,10 +19,14 @@ namespace SplitterNotifyCommon
         string serverHostname = string.Empty;
         string username = string.Empty;
         string password = string.Empty;
+        string dbUsername = string.Empty;
+        string dbPassword = string.Empty;
+        string dbConnectionString = string.Empty;
         string fromFilter;
         string subjectFilter;
         BackgroundWorker worker = new BackgroundWorker();
         HtmlAddressParser htmlAddressParser;
+        SplitterData splitterData;
 
         public SplitterNotifier()
         {
@@ -29,12 +34,23 @@ namespace SplitterNotifyCommon
             string line = sr.ReadLine();
             if (line != null)
             {
-                password = StringCipher.Decrypt(ConfigurationManager.AppSettings["EncryptedPassword"], line);
+                password = StringCipher.Decrypt(ConfigurationManager.AppSettings["emailEncryptedPassword"], line);
+                dbPassword = StringCipher.Decrypt(ConfigurationManager.AppSettings["dbEncryptedPassword"], line);
             }
             fromFilter = ConfigurationManager.AppSettings["fromFilter"];
             subjectFilter = ConfigurationManager.AppSettings["subjectFilter"];
-            username = ConfigurationManager.AppSettings["username"];
-            serverHostname = ConfigurationManager.AppSettings["serverHostname"];
+            username = ConfigurationManager.AppSettings["emailUsername"];
+            dbUsername = ConfigurationManager.AppSettings["dbUsername"];
+            serverHostname = ConfigurationManager.AppSettings["emailServerHostname"];
+
+            string dbConnectionTemplate = ConfigurationManager.AppSettings["dbConnectionStringTemplate"];
+            dbConnectionString = string.Format(dbConnectionTemplate, dbUsername, dbPassword);
+
+            // add settings that needed to be built-up
+            ConfigurationManager.AppSettings.Set("dbConnectionString", dbConnectionString);
+
+            // construct sub-objects
+            splitterData = new SplitterData(ConfigurationManager.AppSettings);
             htmlAddressParser = new HtmlAddressParser(ConfigurationManager.AppSettings);
         }
 
@@ -57,7 +73,6 @@ namespace SplitterNotifyCommon
             {
                 if (imap.Login(username, password))
                 {
-
                     var inbox = imap.Folders.Inbox;
 
                     inbox.OnNewMessagesArrived += Inbox_OnNewMessagesArrived;
@@ -77,34 +92,42 @@ namespace SplitterNotifyCommon
                 {
                     messagesToParse.Add(message);
                 }
-
             }
 
-            Parse(messagesToParse);
+            var uniqueAddressesForSale = GetUniqueAddresses(messagesToParse);
+
+            var possibleSplitters = MatchWithKnownSplitters(uniqueAddressesForSale);
+
+            // TODO
         }
 
-        private void Parse(List<Message> messagesToParse)
+        private HashSet<string> MatchWithKnownSplitters(HashSet<string> uniqueAddressesForSale)
         {
+            return splitterData.ExplicitMatch(uniqueAddressesForSale);
+        }
+
+        private HashSet<string> GetUniqueAddresses(List<Message> messagesToParse)
+        {
+            HashSet<string> addresses = new HashSet<string>();
             foreach (var message in messagesToParse)
             {
-                Parse(message);
+                var addressesInMessage = Parse(message);
+                foreach (string address in addressesInMessage)
+                {
+                    addresses.Add(address);
+                }
             }
+            return addresses;
         }
 
-        private void Parse(Message message)
+        private List<string> Parse(Message message)
         {
-            //if (message.Body.HasText)
-            //{
-            //    Debug.WriteLine(message.Body.Text);
-            //}
             if (message.Body.HasHtml)
             {
                 Debug.WriteLine(message.Body.Html);
-                var addressesInEmail = htmlAddressParser.GetAddressMatches(message.Body.Html);
-
-                // TODO find addresses in DB
+                return htmlAddressParser.GetAddressMatches(message.Body.Html);
             }
-            //throw new NotImplementedException();
+            return new List<string>();
         }
 
         public void Stop()
